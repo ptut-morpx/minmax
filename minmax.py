@@ -1,101 +1,85 @@
 """
-minmax module
-calculates most favorable route from any given state
-states must have a `getMoves()` method returning a tuple in the following format: `(coords, state, score)` where
-	- `coords` is any sensible object
-	- `state` is a distinct state accessible with the original state and the `coords` object
-	- `score` is a score between -100 and 100
-states must have a `player` property which should alternate between 1 and -1 on each move
+pyright 2019 Nathan DÉCHER
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 """
 
-class Tree:
-	def __init__(self, move):
-		self.coords=move[0]
-		self.state=move[1]
-		self.score=move[2]
-		self.player=self.state.player
+
+class Minmax:
+	"""
+	Minmax tree
+	"""
+	
+	def __init__(self, state, move=None):
+		"""
+		Constructor
+		Instantiate a tree for a given Game state.
+		"""
+		self.state=state
+		self.move=move
+		self.score=100*state.status
 		self.children=[]
 		self.preferred=None
 	
-	def recalculate(self):
-		"""
-		traverses the tree to find the most favorable branch
-		"""
-		# leaves are worthless if not a win or loss
-		if len(self.children)==0:
-			if not self.score in [-100, 100]:
-				self.score=0
-		
-		# recalculate score based on children
-		# first we go for a win, and then for the next most favorable outcone
-		elif not self.score in [-100, 100]:
-			
-			# player 1 maximises score
-			if self.player==1:
-				high=-100
-				branch=None
-				for child in self.children:
-					child.recalculate()
-					if child.score==100:
-						self.score=100
-						self.preferred=child
-						return
-					elif child.score>=high:
-						high=child.score
-						branch=child
-				self.score=high
-				self.preferred=branch
-			
-			# player -1 minimises score
-			else:
-				low=100
-				branch=None
-				for child in self.children:
-					child.recalculate()
-					if child.score==-100:
-						self.score=-100
-						self.preferred=child
-						return
-					elif child.score<=low:
-						low=child.score
-						branch=child
-				self.score=low
-				self.preferred=branch
+	def __repr__(self, indent=''):
+		a=indent+str(self.move)+": "+str(self.score)+": "+self.state.__repr__()
+		for c in self.children:
+			a+='\n'+c.__repr__(indent+'\t')
+		return a
 	
 	def build(self, depth):
 		"""
-		recursively build the tree
+		Tree builder
 		"""
+		
+		# handle leaves
 		if depth==0:
+			if self.state.status!=0:
+				self.score=self.state.getScore()
 			return
+		
+		# create children
 		for move in self.state.getMoves():
-			child=Tree(move)
+			child=Minmax(self.state.playClone(*move), move)
+			child.build(depth-1) #TODO find somewhere appropriate to recurse
 			self.children.append(child)
-			child.build(depth-1)
+			
+			# stop immediately on win condition
+			if child.score*self.state.player==100:
+				self.score=child.score
+				self.preferred=child
+				return
+		
+		# handle leaves
+		if len(self.children)==0:
+			return
+		
+		# find best child
+		score=-100
+		for child in self.children:
+			if child.score*self.state.player>=score:
+				score=child.score*self.state.player
+				self.preferred=child
+		self.score=score*self.state.player
 	
-	def getBest(self):
+	@classmethod
+	def getBestMove(Minmax, state, depth):
 		"""
-		find the best route
+		Best move finder
 		"""
-		list=[]
-		elem=self
+		
+		# build the tree and compute minmax on it
+		tree=Minmax(state)
+		tree.build(depth)
+		
+		# get best path
+		moves=[]
+		elem=tree
 		while elem.preferred:
-			list.append(elem.preferred.coords)
+			moves.append(elem.preferred.move)
 			elem=elem.preferred
-		return list
-
-def minmax(state, depth=9):
-	"""
-	calculate most favorable route and score
-	"""
-	tree=Tree((None, state, 0))
-	tree.build(depth)
-	tree.recalculate()
-	return (tree.getBest(), tree.score)
-
-from tictactoereverse import Game
-
-# play a bit so that it's not impossible to win
-a=Game()
-
-print(minmax(a, 9))
+		return (moves, tree.score)
