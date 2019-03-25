@@ -50,7 +50,7 @@ class TicTacToe(Game):
 		self.player=-self.player
 		
 		# check for the diagonals first
-		if x==1 and y==1:
+		if (x==1)==(y==1):
 			if self.board[0]==self.board[4] and self.board[4]==self.board[8]:
 				self.status=self.board[0]
 				return
