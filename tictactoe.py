@@ -28,6 +28,12 @@ class TicTacToe(Game):
 	def __repr__(self):
 		return str(self.board)+' -> '+str(self.player)+' -> '+str(self.status)+' ('+str(self.getScore())+')'
 	
+	def getPlayer(self):
+		return self.player
+	
+	def getStatus(self):
+		return self.status
+	
 	def getMoves(self):
 		"""
 		Move generator

@@ -19,10 +19,24 @@ class Game:
 		Base constructor
 		Should at least define these properties.
 		"""
-		self.player=1 # the next player to play, either 1 or -1
-		self.status=0 # the state of the game, 1 or -1 in case of a win or loss, and 0 otherwise.
+		self.player=1
+		self.status=0
 	
-	def getScore(self):
+	def getPlayer(self):
+		"""
+		Player getter
+		Should return either -1 or 1
+		"""
+		return self.player
+	
+	def getStatus(self):
+		"""
+		Status getter
+		Should return -1 or 1 if the player won, or 0
+		"""
+		return self.status
+	
+	def getScore(self, weights):
 		"""
 		Score estimation method
 		Should return a value between -100 and 100 where -100 means that -1 has won and 100 means that 1 has won.

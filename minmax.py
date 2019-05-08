@@ -21,7 +21,7 @@ class Minmax:
 		"""
 		self.state=state
 		self.move=move
-		self.score=100*state.status
+		self.score=100*state.getStatus()
 		self.children=[]
 		self.preferred=None
 	
@@ -31,25 +31,25 @@ class Minmax:
 			a+='\n'+c.__repr__(indent+'\t')
 		return a
 	
-	def build(self, depth):
+	def build(self, depth, weights=None):
 		"""
 		Tree builder
 		"""
 		
 		# handle leaves
 		if depth==0:
-			if self.state.status!=0:
-				self.score=self.state.getScore()
+			if self.state.getStatus()!=0:
+				self.score=self.state.getScore(weights)
 			return
 		
 		# create children
 		for move in self.state.getMoves():
 			child=Minmax(self.state.playClone(*move), move)
-			child.build(depth-1) #TODO find somewhere appropriate to recurse
+			child.build(depth-1, weights) #TODO find somewhere appropriate to recurse
 			self.children.append(child)
 			
 			# stop immediately on win condition
-			if child.score*self.state.player==100:
+			if child.score*self.state.getPlayer()==100:
 				self.score=child.score
 				self.preferred=child
 				return
@@ -61,20 +61,20 @@ class Minmax:
 		# find best child
 		score=-100
 		for child in self.children:
-			if child.score*self.state.player>=score:
-				score=child.score*self.state.player
+			if child.score*self.state.getPlayer()>=score:
+				score=child.score*self.state.getPlayer()
 				self.preferred=child
-		self.score=score*self.state.player
+		self.score=score*self.state.getPlayer()
 	
 	@classmethod
-	def getBestMove(Minmax, state, depth):
+	def getBestMove(Minmax, state, depth, weights=None):
 		"""
 		Best move finder
 		"""
 		
 		# build the tree and compute minmax on it
 		tree=Minmax(state)
-		tree.build(depth)
+		tree.build(depth, weights)
 		
 		# get best path
 		moves=[]
@@ -83,3 +83,8 @@ class Minmax:
 			moves.append(elem.preferred.move)
 			elem=elem.preferred
 		return (moves, tree.score)
+
+
+from tictactoe import TicTacToe
+a=TicTacToe()
+print(Minmax.getBestMove(a, 9))
