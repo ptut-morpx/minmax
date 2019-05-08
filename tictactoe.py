@@ -86,7 +86,7 @@ class TicTacToe(Game):
 		clone.play(x, y)
 		return clone
 	
-	def getScore(self):
+	def getScore(self, a):
 		"""
 		Score estimation method
 		"""

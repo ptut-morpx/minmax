@@ -43,7 +43,10 @@ class Minmax:
 			return
 		
 		# create children
-		for move in self.state.getMoves():
+		from random import shuffle
+		moves=self.state.getMoves()
+		shuffle(moves)
+		for move in moves:
 			child=Minmax(self.state.playClone(*move), move)
 			child.build(depth-1, weights) #TODO find somewhere appropriate to recurse
 			self.children.append(child)
@@ -83,8 +86,3 @@ class Minmax:
 			moves.append(elem.preferred.move)
 			elem=elem.preferred
 		return (moves, tree.score)
-
-
-from tictactoe import TicTacToe
-a=TicTacToe()
-print(Minmax.getBestMove(a, 9))
