@@ -93,7 +93,7 @@ class TicTacToe(Game):
 		
 		# a won or lost game gives 100 points
 		if self.status!=0:
-			return 100*self.status
+			return 1000000*self.status
 		
 		# function to count the instances of -1's and 1's in its arguments
 		def count(a, b, c):

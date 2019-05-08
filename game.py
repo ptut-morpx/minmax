@@ -39,7 +39,7 @@ class Game:
 	def getScore(self, weights):
 		"""
 		Score estimation method
-		Should return a value between -100 and 100 where -100 means that -1 has won and 100 means that 1 has won.
+		Should return a value between -1000000 and 1000000 where -1000000 means that -1 has won and 1000000 means that 1 has won.
 		"""
 		return 0
 	

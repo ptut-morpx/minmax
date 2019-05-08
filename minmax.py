@@ -21,7 +21,7 @@ class Minmax:
 		"""
 		self.state=state
 		self.move=move
-		self.score=100*state.getStatus()
+		self.score=1000000*state.getStatus()
 		self.children=[]
 		self.preferred=None
 	
@@ -52,7 +52,7 @@ class Minmax:
 			self.children.append(child)
 			
 			# stop immediately on win condition
-			if child.score*self.state.getPlayer()==100:
+			if child.score*self.state.getPlayer()==1000000:
 				self.score=child.score
 				self.preferred=child
 				return
@@ -62,7 +62,7 @@ class Minmax:
 			return
 		
 		# find best child
-		score=-100
+		score=-1000000
 		for child in self.children:
 			if child.score*self.state.getPlayer()>=score:
 				score=child.score*self.state.getPlayer()
